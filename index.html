@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pomodoro Club</title>
+<meta name="description" content="Log your Italian practice across the resources you already use, and see it add up.">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<a class="skip" href="#view">Skip to content</a>
+<div id="app" class="app" hidden>
+  <div id="dock" class="dock">
+    <button id="fab" class="fab" data-act="mistake-open">+ Log a mistake</button>
+    <div id="timerbar"></div>
+    <nav id="tabbar" class="tabbar" aria-label="Main"></nav>
+  </div>
+  <header class="topbar">
+    <a class="brand" href="#/oggi">Pomodoro Club</a>
+    <nav id="topnav" class="topnav" aria-label="Main"></nav>
+    <a class="btn btn-small" href="#/settings">Settings</a>
+  </header>
+  <main id="view" class="view" tabindex="-1"></main>
+</div>
+<main id="welcome" hidden></main>
+<div id="sheet-root"></div>
+<div id="reveal-root"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<noscript><p>Pomodoro Club needs JavaScript to run.</p></noscript>
+
+<script src="js/data/activities.js"></script>
+<script src="js/data/topics-prompts.js"></script>
+<script src="js/data/grammar-tables.js"></script>
+<script src="js/data/discoveries.js"></script>
+<script src="js/data/exam-bank.js"></script>
+<script src="js/core.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/screens.js"></script>
+<script src="js/scritti.js"></script>
+<script src="js/grammatica.js"></script>
+<script src="js/journal.js"></script>
+<script src="js/esame.js"></script>
+<script src="js/risorse.js"></script>
+<script>PC.boot();</script>
+</body>
+</html>
