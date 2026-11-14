@@ -40,8 +40,9 @@
     const sel = document.activeElement && 'selectionStart' in document.activeElement ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
     const welcome = !S.meta.welcomed;
     $('#app').hidden = welcome; $('#welcome').hidden = !welcome;
-    if (welcome) { $('#welcome').innerHTML = screens.welcome.render(); }
+    if (welcome) { $('#welcome').innerHTML = screens.welcome.render(); $('#view').innerHTML = ''; $('#timerbar').innerHTML = ''; }
     else {
+      $('#welcome').innerHTML = '';
       const sc = screens[UI.route.name] || screens.oggi;
       const tab = sc.tab || '';
       const nav = TABS.map(t => '<a href="#/' + t[0] + '" class="tab"' + (tab === t[0] ? ' aria-current="page"' : '') + '><span class="tab-it">' + t[1] + '</span><span class="tab-en">' + t[2] + '</span></a>').join('');

@@ -83,7 +83,13 @@
   --sheet-max: 32rem;
   --nav-height: 60px;
   --ring-size: 13rem;
-  --ring-stroke: 10px;
+  --ring-stroke: 6;              /* in the ring's own 100-unit drawing */
+  --ring-tick: 2;
+  --sheet-max-height: 90vh;
+  --reveal-min-height: 80vh;
+  --toast-max-width: 90vw;
+  --text-unit-scale: 0.55em;     /* the small "min" / "h" beside a big number */
+  --underline-offset: 0.2em;
   --dot-max: 22px;
   --dot-min: 6px;
   --jar-width: 5.5rem;

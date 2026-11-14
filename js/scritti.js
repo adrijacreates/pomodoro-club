@@ -9,7 +9,10 @@
 
   function draft() {
     const S = PC.S;
-    if (!S.draft || !S.draft.promptId || !PC.findPrompt(S.draft.promptId)) S.draft = Object.assign({ goal: 'short', text: '', pieceId: null, feedback: null }, S.draft || {}, { promptId: PC.pickPrompt() });
+    const cur = S.draft && S.draft.promptId && PC.findPrompt(S.draft.promptId);
+    // a prompt whose topic has been unticked is swapped out, unless writing on it has already begun
+    const stale = cur && !cur.tailored && !PC.countWords(S.draft.text) && !PC.promptPool().some(p => p.id === cur.id);
+    if (!cur || stale) S.draft = Object.assign({ goal: 'short', text: '', pieceId: null, feedback: null }, S.draft || {}, { promptId: PC.pickPrompt() });
     return S.draft;
   }
   const promptTitle = p => p ? (p.title || p.text) : 'Free writing';
@@ -108,7 +111,7 @@
     h += feedbackHtml(d.feedback, d.pieceId) + '<p><a href="#/journal">Error Journal</a></p>';
     return h;
   }
-  actions['w-goal'] = el => { const d = draft(), ta = $('#w-text'); if (ta) d.text = ta.value; d.goal = el.dataset.v; PC.save(); PC.render(); if ($('#w-text')) $('#w-text').focus(); }; // switches the goal, keeps the text
+  actions['w-goal'] = el => { const d = draft(), ta = $('#w-text'); if (ta) d.text = ta.value; d.goal = el.dataset.v; PC.save(); PC.render(); const n = $('#w-text'); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); } }; // switches the goal, keeps the text
   actions['w-another'] = () => { const d = draft(), id = PC.pickPrompt(d.promptId); if (id) { d.promptId = id; d.feedback = null; PC.save(); } PC.render(); };
   actions['w-start'] = () => PC.startActivity('writing', { sheet: false });
   actions['w-save'] = () => { const p = upsertPiece(true); if (p) { PC.toast('Piece saved'); PC.go('#/scritti/pieces/' + p.id); } };

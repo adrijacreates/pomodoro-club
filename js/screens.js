@@ -55,19 +55,23 @@
   screens.oggi = {
     tab: 'oggi', title: 'Oggi', wide: true,
     render() {
-      const S = PC.S, today = PC.todayKey(), sec = PC.secOn(today), st = PC.tomatoStats(), t = S.timer;
-      const by = PC.secByActivity(s => s.date === today);
+      const S = PC.S, today = PC.todayKey(), st = PC.tomatoStats();
+      const day = PC.isKey(UI.local.day) && UI.local.day < today ? UI.local.day : today, past = day !== today; // ‹ › looks back at earlier days
+      const sec = PC.secOn(day), t = past ? null : S.timer;
+      const by = PC.secByActivity(s => s.date === day);
       const split = PC.ALL_ACTS.filter(a => by[a.id]).map(a => a.short + ' ' + (by[a.id] < 60 ? '<1' : PC.wholeMin(by[a.id])));
       if (t) split.push(PC.act(t.activityId).short + (t.runningSince ? ' running' : ' paused'));
-      const sessions = PC.sessionsOn(today), cards = PC.suggestions(today);
+      const sessions = PC.sessionsOn(day), cards = past ? [] : PC.suggestions(today);
       const m = PC.wholeMin(sec);
       const big = sec > 0 && sec < 60 ? '&lt;1 <small>min</small>' : m < 60 ? m + ' <small>min</small>' : Math.floor(m / 60) + ' <small>h</small> ' + (m % 60) + ' <small>min</small>';
       let h = '<div class="cols"><div class="col-a">'
-        + '<p class="eyebrow">' + esc(long(today)) + '</p><h1>' + greeting() + (S.settings.name ? ', ' + esc(S.settings.name) : '') + '</h1>'
-        + '<section class="card" aria-label="Studied today"><p class="eyebrow">Studied today</p><p class="big" id="today-min">' + big + '</p>'
-        + '<p class="muted">' + (split.length ? esc(split.join(' · ')) : 'Nothing logged yet today. Any activity counts, for any length.') + '</p>'
-        + '<div class="strip"><div><strong>' + st.minsToNext + ' min to your next tomato</strong>' + tomatoDots(st.inJar) + '</div><a href="#/dispensa">Jar ' + (st.jars + 1) + ' · ' + st.inJar + ' of 8</a></div></section>'
-        + '<section aria-labelledby="sug-h"><h2 id="sug-h">Suggested for you</h2>';
+        + '<div class="split"><p class="eyebrow">' + esc(past ? 'Looking back' : long(today)) + '</p><span class="row-start"><button class="btn btn-icon" data-act="day-prev" aria-label="Previous day">‹</button><button class="btn btn-icon" data-act="day-next" aria-label="Next day"' + (past ? '' : ' disabled') + '>›</button></span></div>'
+        + '<h1>' + (past ? esc(long(day)) : greeting() + (S.settings.name ? ', ' + esc(S.settings.name) : '')) + '</h1>'
+        + (past ? '<button class="btn btn-small" data-act="day-today">Back to today</button>' : '')
+        + '<section class="card" aria-label="Studied"><p class="eyebrow">' + (past ? 'Studied that day' : 'Studied today') + '</p><p class="big" id="today-min">' + big + '</p>'
+        + '<p class="muted">' + (split.length ? esc(split.join(' · ')) : past ? 'Nothing was logged on this day.' : 'Nothing logged yet today. Any activity counts, for any length.') + '</p>'
+        + '<div class="strip"' + (past ? ' hidden' : '') + '><div><strong>' + st.minsToNext + ' min to your next tomato</strong>' + tomatoDots(st.inJar) + '</div><a href="#/dispensa">Jar ' + (st.jars + 1) + ' · ' + st.inJar + ' of 8</a></div></section>'
+        + '<section aria-labelledby="sug-h"' + (past ? ' hidden' : '') + '><h2 id="sug-h">Suggested for you</h2>';
       h += cards.length ? cards.map(c => '<article class="card sug"><span class="tag">' + esc(c.activity.short) + (S.settings.pinned.indexOf(c.activity.id) >= 0 ? ' · every day' : '') + '</span><h3>' + esc(c.action) + '</h3><p class="muted">' + esc(c.reason) + '</p>'
         + '<div class="row-start"><button class="btn btn-primary" data-act="sug-start" data-id="' + c.activity.id + '">Start</button><button class="btn btn-link" data-act="sug-hide" data-id="' + c.activity.id + '">Not today</button></div></article>').join('')
         : '<p class="muted">Nothing to suggest right now. Pick anything from All activities.</p>';
@@ -75,13 +79,16 @@
         + '<a class="btn block" href="#/activities">All activities</a>'
         + '<section aria-label="Shortcuts" class="grid2"><a class="card link-card" href="#/scritti" data-act="short-write"><strong>Write</strong><span class="muted">Two sentences is enough</span></a>'
         + '<a class="card link-card" href="#/grammatica"><strong>Grammar tables</strong><span class="muted">' + PC.TABLES.filter(x => PC.tableRec(x.id).state === 'practising').length + ' practising</span></a></section>'
-        + '<section aria-labelledby="ts-h"><h2 id="ts-h" class="h3"><a href="#/sessions">Today’s sessions (' + sessions.length + ')</a></h2>'
+        + '<section aria-labelledby="ts-h"><h2 id="ts-h" class="h3"><a href="#/sessions/' + day + '">' + (past ? 'Sessions that day' : 'Today’s sessions') + ' (' + sessions.length + ')</a></h2>'
         + (sessions.length ? '<ul class="list">' + sessions.map(s => '<li class="split"><span>' + esc(PC.act(s.activityId).name) + (PC.resName(s.activityId, s.resourceId) ? ' · ' + esc(PC.resName(s.activityId, s.resourceId)) : '') + '</span><strong>' + PC.fmtMin(s.seconds) + '</strong></li>').join('') + '</ul>'
-          : '<p class="muted">No sessions yet today. Start a timer above, or log time by hand.</p>')
-        + '<button class="btn btn-link" data-act="manual-open">Log time without the timer</button></section></div></div>';
+          : '<p class="muted">' + (past ? 'No sessions on this day. You can add one by hand.' : 'No sessions yet today. Start a timer above, or log time by hand.') + '</p>')
+        + '<button class="btn btn-link" data-act="manual-open" data-date="' + day + '">Log time without the timer</button></section></div></div>';
       return h;
     }
   };
+  actions['day-prev'] = () => { const cur = PC.isKey(UI.local.day) ? UI.local.day : PC.todayKey(); UI.local.day = PC.addDays(cur, -1); PC.render(); };
+  actions['day-next'] = () => { if (!PC.isKey(UI.local.day)) return; const n = PC.addDays(UI.local.day, 1); UI.local.day = n >= PC.todayKey() ? null : n; PC.render(); };
+  actions['day-today'] = () => { UI.local.day = null; PC.render(); };
   actions['sug-hide'] = el => { PC.hideSuggestion(el.dataset.id); PC.render(); };
   actions['sug-start'] = el => {
     const c = PC.suggestions().find(x => x.activity.id === el.dataset.id); if (!c) return;
@@ -288,5 +295,5 @@
   };
   actions['erase-ask'] = () => { UI.local.erase = true; PC.render(); };
   actions['erase-cancel'] = () => { UI.local.erase = false; PC.render(); };
-  actions['erase-confirm'] = () => { PC.erase(); UI.local = {}; UI.sheet = null; UI.reveal = null; location.hash = ''; PC.render(); };
+  actions['erase-confirm'] = () => { PC.erase(); UI.local = {}; UI.sheet = null; UI.reveal = null; UI.route = { name: 'oggi', args: [] }; history.replaceState(null, '', location.pathname); PC.render(); window.scrollTo(0, 0); };
 })();
